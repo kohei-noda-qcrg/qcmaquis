@@ -46,10 +46,10 @@ template<class Matrix, class SymmGroup> class Measurements;
 template <class Matrix, class SymmGroup>
 class model_impl {
 public:
-    typedef boost::shared_ptr<mps_initializer<Matrix, SymmGroup> > initializer_ptr;
+    typedef std::shared_ptr<mps_initializer<Matrix, SymmGroup> > initializer_ptr;
 
     typedef TagHandler<Matrix, SymmGroup> table_type;
-    typedef boost::shared_ptr<table_type> table_ptr;
+    typedef std::shared_ptr<table_type> table_ptr;
     typedef typename table_type::tag_type tag_type;
 
     typedef ::term_descriptor<typename Matrix::value_type> term_descriptor;
@@ -73,7 +73,7 @@ public:
 
     virtual typename SymmGroup::charge total_quantum_numbers(BaseParameters & parms) const=0;
 
-    virtual terms_type const& hamiltonian_terms() const { return terms_; }
+    virtual terms_type const & hamiltonian_terms() const { return terms_; }
     virtual measurements_type measurements() const=0;
 
     virtual op_t const& get_operator(std::string const & name, size_t type) const { return operators_table()->get_op( get_operator_tag(name, type) ); }
@@ -92,7 +92,7 @@ protected:
 
 /// model factory
 template <class Matrix, class SymmGroup>
-boost::shared_ptr<model_impl<Matrix, SymmGroup> >
+std::shared_ptr<model_impl<Matrix, SymmGroup> >
 model_factory(Lattice const& lattice, BaseParameters & parms);
 
 
@@ -100,7 +100,7 @@ model_factory(Lattice const& lattice, BaseParameters & parms);
 template <class Matrix, class SymmGroup>
 class Model {
     typedef model_impl<Matrix, SymmGroup> impl_type;
-    typedef boost::shared_ptr<impl_type> impl_ptr;
+    typedef std::shared_ptr<impl_type> impl_ptr;
 public:
     typedef typename impl_type::initializer_ptr initializer_ptr;
 
