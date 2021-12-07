@@ -198,6 +198,7 @@ public:
         std::regex expression_transition_twoptdm("^MEASURE\\[trans2rdm\\]");
         std::regex expression_threeptdm("^MEASURE\\[3rdm\\]");
         std::regex expression_transition_threeptdm("^MEASURE\\[trans3rdm\\]");
+        std::regex expression_fourptdm("^MEASURE\\[4rdm\\]");
         std::smatch what;
         for (auto&& it : parms.get_range()) {
             std::string lhs = it.first;
@@ -277,6 +278,35 @@ public:
                     bond_tag_element meas_operators;
                     meas_operators.push_back(create);
                     meas_operators.push_back(create);
+                    meas_operators.push_back(destroy);
+                    meas_operators.push_back(destroy);
+                    synchronous_meas_operators.push_back(std::make_pair(meas_operators, 1));
+                }
+                half_only = true;
+                std::vector<pos_t> positions;
+                meas.push_back( new measurements::TaggedNRankRDM<Matrix, SymmGroup>(name, lat, tag_handler, ident, fill,
+		                                                                            synchronous_meas_operators,half_only,
+										                                            positions, bra_ckp));
+            }
+
+            else if (std::regex_match(lhs, what, expression_fourptdm)) {
+
+                typedef std::vector<tag_type> tag_vec;
+                typedef std::vector<tag_vec> bond_tag_element;
+                typedef std::pair<std::vector<tag_vec>, value_type> scaled_bond_element;
+
+                std::string bra_ckp("");
+                name = "fourptdm";
+
+		        std::vector<scaled_bond_element> synchronous_meas_operators;
+                {
+                    bond_tag_element meas_operators;
+                    meas_operators.push_back(create);
+                    meas_operators.push_back(create);
+                    meas_operators.push_back(create);
+                    meas_operators.push_back(create);
+                    meas_operators.push_back(destroy);
+                    meas_operators.push_back(destroy);
                     meas_operators.push_back(destroy);
                     meas_operators.push_back(destroy);
                     synchronous_meas_operators.push_back(std::make_pair(meas_operators, 1));
