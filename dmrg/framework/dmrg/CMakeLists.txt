@@ -28,10 +28,6 @@ foreach(SYMM ${BUILD_SYMMETRIES})
   if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${TRIAL_INCLUDE_FACTORY}")
     add_line_to(MAQUIS_INCLUDE_FACTORIES_${GROUP_NAME} "#include \"dmrg/${TRIAL_INCLUDE_FACTORY}\"")
   endif()
-  set(TRIAL_INCLUDE_FACTORY "models/continuum/factory_${SYMM_SUFFIX}.ipp")
-  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${TRIAL_INCLUDE_FACTORY}")
-    add_line_to(MAQUIS_INCLUDE_FACTORIES_${GROUP_NAME} "#include \"dmrg/${TRIAL_INCLUDE_FACTORY}\"")
-  endif()
 endforeach(SYMM)
 
 configure_symm_file("models/model_factory_symm/model_factory_tpl.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/models/model_factory_symm/model_factory_{SYMM}.cpp" CMAKE_SYMM_GROUP)
@@ -53,6 +49,7 @@ get_symm_files(APPEND DMRG_MODELS_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/models/mo
 # *** Libraries
 add_library(dmrg_utils STATIC block_matrix/symmetry/su2_wrapper.cpp block_matrix/symmetry.cpp utils/utils.cpp utils/DmrgOptions.cpp utils/time_stopper.cpp utils/proc_statm.cpp utils/proc_status.cpp utils/BaseParameters.cpp utils/results_collector.cpp)
 add_library(dmrg_models STATIC ${DMRG_MODELS_SOURCES})
+#target_link_libraries(dmrg_models Eigen3::Eigen)
 
 set_property(TARGET dmrg_utils dmrg_models PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
