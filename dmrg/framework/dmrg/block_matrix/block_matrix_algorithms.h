@@ -313,6 +313,11 @@ void estimate_truncation(block_matrix<DiagMatrix, SymmGroup> const & evals,
     std::sort(allevals.begin(), allevals.end());
     std::reverse(allevals.begin(), allevals.end());
 
+    for(std::size_t k = 0; k < allevals.size(); k++){
+
+        std::cout << "S["<<k<<"] = " << allevals[k] << std::endl;
+    }
+
     real_type evalscut = cutoff * allevals[0];
 
     if (allevals.size() > Mmax)
@@ -399,7 +404,7 @@ truncation_results svd_truncate(block_matrix<Matrix, SymmGroup> const & M,
 
     std::size_t bond_dimension = S.basis().sum_of_left_sizes();
     if(verbose){
-        maquis::cout << "Sum: " << old_basis.sum_of_sizes() << " -> " << bond_dimension << std::endl;
+        maquis::cout << "SVD truncation - Sum: " << old_basis.sum_of_sizes() << " -> " << bond_dimension << std::endl;
     }
 
     // MD: for singuler values we care about summing the square of the discraded

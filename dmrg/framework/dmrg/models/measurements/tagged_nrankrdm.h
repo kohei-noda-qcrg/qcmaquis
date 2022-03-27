@@ -732,7 +732,7 @@ namespace measurements {
                             MPO<Matrix, SymmGroup> mpo = generate_mpo::sign_and_fill(term, identities, fillings, tag_handler_local, lattice);
                             //value += operator_terms[synop].second * expval(bra_mps, ket_mps, mpo);
                             value += (this->cast_to_real) ? maquis::real(operator_terms[synop].second * expval(bra_mps, ket_mps_local, mpo)) 
-                                                          : operator_terms[synop].second * expval(bra_mps, ket_mps, mpo);
+                                                          : operator_terms[synop].second * expval(bra_mps, ket_mps_local, mpo);
                         }
 
                         if(measured)
@@ -768,29 +768,56 @@ namespace measurements {
             // Test if a separate bra state has been specified
             bool bra_neq_ket = (dummy_bra_mps.length() > 0);
             MPS<Matrix, SymmGroup> const & bra_mps = (bra_neq_ket) ? dummy_bra_mps : ket_mps;
+            MPS<Matrix, SymmGroup> ket_mps_local = ket_mps;
+            std::cout << "  operator_terms.size() is " <<  operator_terms.size() << std::endl;
+            int nonZERO=0;
+
+            /* crea4 >= crea3 >= crea2 >= anni1
+               crea1, anni2, anni3, anni4 >= anni1 */
 
             #ifdef MAQUIS_OPENMP
             #pragma omp parallel for collapse(1) schedule(dynamic) firstprivate(ket_mps_local, bra_mps)
             #endif
-            for (pos_t p1 = 0; p1 < lattice.size(); ++p1)
-            for (pos_t p2 = 0; p2 < lattice.size(); ++p2)
-            for (pos_t p3 = 0; p3 < lattice.size(); ++p3)
-            for (pos_t p4 = 0; p4 < lattice.size(); ++p4)
-            for (pos_t p5 = 0; p5 < lattice.size(); ++p5)
-            for (pos_t p6 = 0; p6 < lattice.size(); ++p6)
-            for (pos_t p7 = 0; p7 < lattice.size(); ++p7)
-            for (pos_t p8 = 0; p8 < lattice.size(); ++p8)
-            {
-		        if( (p1 == p2 && p1 == p3) || (p1 == p2 && p1 == p4) || (p1 == p2 && p1 == p5) || (p1 == p2 && p1 == p6) || (p1 == p2 && p1 == p7) || (p1 == p2 && p1 == p8) )
-                      continue;
+            for (pos_t p8 = 0 ; p8 <  lattice.size(); ++p8)/* anni1 */
+            for (pos_t p7 = p8; p7 <  lattice.size(); ++p7)/* anni2 */
+            for (pos_t p6 = p8; p6 <  lattice.size(); ++p6)/* anni3 */
+            for (pos_t p5 = p8; p5 <  lattice.size(); ++p5)/* anni4 */
+            for (pos_t p4 = p8; p4 <  lattice.size(); ++p4)/* crea1 */
+            for (pos_t p3 = p8; p3 <  lattice.size(); ++p3)/* crea2 */
+            for (pos_t p2 = p3; p2 <  lattice.size(); ++p2)/* crea3 */
+            for (pos_t p1 = p2; p1 <  lattice.size(); ++p1)/* crea4 */
+          /*for (pos_t p5 = 0; p5 <= p1            ; ++p5)
+            for (pos_t p6 = 0; p6 <= p2            ; ++p6)
+            for (pos_t p7 = 0; p7 <= p3            ; ++p7)
+            for (pos_t p8 = 0; p8 <= p4            ; ++p8)
+          */{
+
+                int tuple1[] = {p1, p2, p3, p4};
+                int tuple2[] = {p5, p6, p7, p8};
+
+                int pMax = *std::max_element(tuple1,tuple1+4);
+                int tMax = *std::max_element(tuple2,tuple2+4);
+                pMax = std::max(pMax,tMax);
+
+                // check tuple1 (creation ops) and tuple2 (annihilation ops)
+                bool skip = false;
+                for (auto i = 0; i < pMax; i++){
+                    auto mycount1 = std::count(std::begin(tuple1), std::end(tuple1), i);
+                    auto mycount2 = std::count(std::begin(tuple2), std::end(tuple2), i);
+                    if(mycount1 > 1 || mycount2 > 1){
+                        skip = true;
+                        break;
+                    }
+                }
+                if(skip)
+                    continue;
                 std::shared_ptr<TagHandler<Matrix, SymmGroup> > tag_handler_local(new TagHandler<Matrix, SymmGroup>(*tag_handler));
+//              std::cout << "  measuring term " << p1 << " " <<  p2 << " " << p3 << " " <<  p4 << " " <<  p5 << " " <<  p6 << " " <<  p7 << " " <<  p8 << " " << std::endl;
 
                 {
 
                     std::vector<typename MPS<Matrix, SymmGroup>::scalar_type> dct;
                     std::vector<std::vector<pos_t> > num_labels;
-
-                    std::vector<pos_t> positions = {p1, p2, p3, p4, p5, p6, p7, p8};
 
                     std::vector<pos_t> positionsORD = {p1, p2, p3, p4, p5, p6, p7, p8};
 
@@ -809,41 +836,47 @@ namespace measurements {
                         operators[6] = operator_terms[synop].first[6][lattice.get_prop<typename SymmGroup::subcharge>("type", p7)];
                         operators[7] = operator_terms[synop].first[7][lattice.get_prop<typename SymmGroup::subcharge>("type", p8)];
 
-                        term_descriptor term = generate_mpo::arrange_operators(positions, operators, tag_handler_local);
+                        term_descriptor term = generate_mpo::arrange_operators(positionsORD, operators, tag_handler_local);
                         // check if term is allowed by symmetry
-                        //if(not measurements_details::checkpg<SymmGroup>()(term, tag_handler_local, lattice))
-                        //    continue;
+                        if(not measurements_details::checkpg<SymmGroup>()(term, tag_handler_local, lattice))
+                            continue;
 
                         measured = true;
                         MPO<Matrix, SymmGroup> mpo = generate_mpo::sign_and_fill(term, identities, fillings, tag_handler_local, lattice);
                         //value += operator_terms[synop].second * expval(bra_mps, ket_mps, mpo);
-                        value += (this->cast_to_real) ?  maquis::real(operator_terms[synop].second * expval(bra_mps, ket_mps, mpo)) :  operator_terms[synop].second * expval(bra_mps, ket_mps, mpo);
-                        }
+                        value += (this->cast_to_real) ?  maquis::real(operator_terms[synop].second * expval(bra_mps, ket_mps_local, mpo)) :  operator_terms[synop].second * expval(bra_mps, ket_mps_local, mpo);
+                     }
+
+                     if(abs(value) == 0) continue;
+
+                     nonZERO+=1;
 
                      if(measured)
                      {
                           dct.push_back(value);
                           num_labels.push_back(order_labels(lattice, positionsORD));
                      }
-                }
+                     std::vector<std::string> lbt = label_strings(num_labels);
+                     //std::cout << "  measuring term " << p1 << " " <<  p2 << " " << p3 << " " <<  p4 << " " <<  p5 << " " <<  p6 << " " <<  p7 << " " <<  p8 << " --> " << value << std::endl;
+                     std::cout << "  " << value << "     " << p1+1 << " " <<  p2+1 << " " << p3+1 << " " <<  p4+1 << " " <<  p5+1 << " " << p6+1 << " " <<  p7+1 << " " <<  p8+1  << std::endl;
 
-                std::vector<std::string> lbt = label_strings(num_labels);
+                     // save results and labels
+                     #ifdef MAQUIS_OPENMP
+                     #pragma omp critical
+                     #endif
+                     {
+                         this->vector_results.reserve(this->vector_results.size() + dct.size());
+                         std::copy(dct.rbegin(), dct.rend(), std::back_inserter(this->vector_results));
 
-                // save results and labels
-                #ifdef MAQUIS_OPENMP
-                #pragma omp critical
-                #endif
-                {
-                    this->vector_results.reserve(this->vector_results.size() + dct.size());
-                    std::copy(dct.rbegin(), dct.rend(), std::back_inserter(this->vector_results));
+                         this->labels.reserve(this->labels.size() + dct.size());
+                         std::copy(lbt.rbegin(), lbt.rend(), std::back_inserter(this->labels));
 
-                    this->labels.reserve(this->labels.size() + dct.size());
-                    std::copy(lbt.rbegin(), lbt.rend(), std::back_inserter(this->labels));
-
-                    this->labels_num.reserve(this->labels_num.size() + dct.size());
-                    std::copy(num_labels.rbegin(), num_labels.rend(), std::back_inserter(this->labels_num));
+                         this->labels_num.reserve(this->labels_num.size() + dct.size());
+                         std::copy(num_labels.rbegin(), num_labels.rend(), std::back_inserter(this->labels_num));
+                     }
                 }
             }
+            std::cout << "  NONzero 4 RDM elements: " << nonZERO << std::endl;
         }
 
     private:
