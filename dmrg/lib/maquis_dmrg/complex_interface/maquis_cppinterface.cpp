@@ -206,14 +206,10 @@ integral_indices[i][3]};
 
         // setup spinorOrder from QCM to CQ
         std::vector<int> revSpinorOrder;
-        // initialize spinor reordering index vector (first unbarred than the barred partner)
+        // no reordering for now
         revSpinorOrder.reserve(L_);
         for (int i = 0; i < L_; i++){
-            if(i < L_/2){ /* unbarred */
-                revSpinorOrder.push_back(2*i         );
-            }else{ /* barred */
-                revSpinorOrder.push_back(2*i - L_ + 1);
-            }
+            revSpinorOrder.push_back(i);
         }
 
         for (int i = 0; i < meas.first.size(); i++)
@@ -251,14 +247,10 @@ integral_indices[i][3]};
 
         // setup spinorOrder from QCM to CQ
         std::vector<int> revSpinorOrder;
-        // initialize spinor reordering index vector (first unbarred than the barred partner)
+        // no reordering for now
         revSpinorOrder.reserve(L_);
         for (int i = 0; i < L_; i++){
-            if(i < L_/2){ /* unbarred */
-                revSpinorOrder.push_back(2*i         );
-            }else{ /* barred */
-                revSpinorOrder.push_back(2*i - L_ + 1);
-            }
+            revSpinorOrder.push_back(i);
         }
 
         for (int i = 0; i < meas.first.size(); i++)
