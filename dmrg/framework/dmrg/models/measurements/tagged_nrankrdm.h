@@ -588,16 +588,12 @@ namespace measurements {
                     throw std::runtime_error("The bra checkpoint file " + bra_ckp + " was not found\n");
             }
 
-            maquis::cout << " measuring in rel version of tagged_nrank " << std::endl;
+            maquis::cout << " measuring in u1dg version of tagged_nrank " << std::endl;
 
-            if (operator_terms[0].first.size() == 2)
+            if (this->name() == "oneptdm" || this->name() == "transition_oneptdm")
                 measure_correlation(bra_mps, ket_mps);
-            else if (operator_terms[0].first.size() == 4)
+            else if (this->name() == "twoptdm" || this->name() == "transition_twoptdm")
                 measure_2rdm(bra_mps, ket_mps);
-          //else if (operator_terms[0].first.size() == 6)
-          //    measure_3rdm(bra_mps, ket_mps);
-          //else if (operator_terms[0].first.size() == 8)
-          //    measure_4rdm(bra_mps, ket_mps);
             else
                 throw std::runtime_error("relativistic correlation measurements at the moment supported with 2 and 4 operators, size is "
                                           + boost::lexical_cast<std::string>(operator_terms[0].first.size()));
@@ -628,7 +624,7 @@ namespace measurements {
 
                 std::vector<typename MPS<Matrix, SymmGroup>::scalar_type> dct;
                 std::vector<std::vector<pos_t> > num_labels;
-                for (pos_t p2 = p1; p2 < lattice.size(); ++p2)
+                for (pos_t p2 = (bra_neq_ket ? 0 : p1); p2 < lattice.size(); ++p2)
                 {
                     std::vector<pos_t> positions = {p1, p2};
 
