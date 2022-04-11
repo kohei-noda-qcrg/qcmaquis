@@ -168,6 +168,12 @@ namespace maquis
     }
 
     template <class V, Hamiltonian HamiltonianType>
+    const typename DMRGInterface<V, HamiltonianType>::meas_with_results_type& DMRGInterface<V, HamiltonianType>::onetdm()
+    {
+        return measurements().at("transition_oneptdm");
+    }
+
+    template <class V, Hamiltonian HamiltonianType>
     const typename DMRGInterface<V, HamiltonianType>::meas_with_results_type& DMRGInterface<V, HamiltonianType>::onespdm()
     {
         return measurements().at("oneptspdm");

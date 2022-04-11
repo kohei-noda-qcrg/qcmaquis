@@ -221,6 +221,46 @@ integral_indices[i][3]};
         }
     }
 
+    // 1-TDM -- CQ
+    void qcmaquis_interface_get_1tdm(V* tdm1, int bra_state) // CQ
+    {
+
+        // backup old measurement settings and setup bra-state specific 1-TDM measurement
+        BaseParameters parms_bck = cpp_parms.measurements();
+        cpp_parms.erase_measurements();
+
+        std::string bra_chkp = "chk." + std::to_string(bra_state) + ".h5";
+        cpp_parms.set("MEASURE[trans1rdm]", bra_chkp);
+
+
+        const typename maquis::DMRGInterface<V>::meas_with_results_type& meas = cpp_interface_ptr->onetdm();
+
+        // reset 1-TDM measurement
+        cpp_parms.erase_measurements();
+        cpp_parms << parms_bck;
+
+        int L_ = cpp_parms.get<int>("L");
+
+        // clean memory
+        std::fill_n(tdm1,L_*L_,V(0.));
+
+        // setup spinorOrder from QCM to CQ
+        std::vector<int> revSpinorOrder;
+        // no reordering for now
+        revSpinorOrder.reserve(L_);
+        for (int i = 0; i < L_; i++){
+            revSpinorOrder.push_back(i);
+        }
+
+        for (int i = 0; i < meas.first.size(); i++)
+        {
+            //std::cout << " 1-tdm from meas ... element " <<  meas.first[i][0]<<" " << meas.first[i][1] << " is --> " << meas.second[i] << std::endl;
+                tdm1[revSpinorOrder[meas.first[i][0]] + revSpinorOrder[meas.first[i][1]]*L_] =           meas.second[i];
+            if(meas.first[i][0] < meas.first[i][1])
+                tdm1[revSpinorOrder[meas.first[i][1]] + revSpinorOrder[meas.first[i][0]]*L_] = std::conj(meas.second[i]);
+        }
+    }
+
     // hooray for copy-paste
     void qcmaquis_interface_get_2rdm(std::vector<std::pair<V,std::array<int,4>>> *rdm2) // BAGEL
     {

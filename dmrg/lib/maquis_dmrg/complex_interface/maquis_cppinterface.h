@@ -91,6 +91,10 @@
     void qcmaquis_interface_get_1rdm(V *rdm1); // CQ
     void qcmaquis_interface_get_1rdm(dV *rdm1){}; // CQ
 
+    // Get 1-TDM
+    void qcmaquis_interface_get_1tdm(V *tdm1, int bra_state); // CQ
+    void qcmaquis_interface_get_1tdm(dV *tdm1, int bra_state){}; // CQ
+
     // Get 2-RDM
     void qcmaquis_interface_get_2rdm(std::vector<std::pair<V,std::array<int,4>>> *rdm2);// BAGEL
     void qcmaquis_interface_get_2rdm(V *rdm2); // CQ
