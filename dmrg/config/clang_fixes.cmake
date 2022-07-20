@@ -9,4 +9,8 @@ set(${COMPILER_FLAGS_VAR} "-Wno-dangling-else ${${COMPILER_FLAGS_VAR}}")
 set(${COMPILER_FLAGS_VAR} "-ftemplate-depth-256 ${${COMPILER_FLAGS_VAR}}")
 
 ## fix problems with libc++
-set(${COMPILER_FLAGS_VAR} "-stdlib=libstdc++ ${${COMPILER_FLAGS_VAR}}")
+if(${CMAKE_OSX_DEPLOYMENT_TARGET} VERSION_GREATER "12.0")
+  set(${COMPILER_FLAGS_VAR} "-stdlib=libc++ ${${COMPILER_FLAGS_VAR}}")
+else()
+  set(${COMPILER_FLAGS_VAR} "-stdlib=libstdc++ ${${COMPILER_FLAGS_VAR}}")
+endif()

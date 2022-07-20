@@ -81,17 +81,17 @@ extern "C"
 
         if (site_types != NULL)
         {
-            std::string site_types_str;
+            std::string s;
             for (int i = 0; i < L; i++)
-                site_types_str += std::to_string(site_types[i]) + ((i < L - 1) ? "," : "") ;
-            parms.set("site_types", site_types_str);
+                s += (std::to_string(site_types[i]) + (i < (L-1) ? "," : ""));
+            parms.set("site_types", s);
         }
         else
         {
-            std::string site_types_str;
+            std::string s;
             for (int i = 0; i < L; i++)
-                site_types_str += "0" + (i < L - 1) ? "," : "" ;
-            parms.set("site_types", site_types_str);
+                s += (std::to_string(0) + (i < (L-1) ? "," : ""));
+            parms.set("site_types", s);
         }
 
         parms.set("conv_thresh", conv_thresh);
@@ -270,6 +270,10 @@ extern "C"
         assert(size >= meas.second.size());
         for (int i = 0; i < meas.first.size(); i++)
         {
+            /* std::cout << " element[" << meas.first[i][0] << ","<< meas.first[i][1] << ","
+                                        << meas.first[i][2] << ","<< meas.first[i][3] << "] = "
+                                        << meas.second[i] << std::endl;
+            */
             values[i] = meas.second[i];
             indices[4*i] = meas.first[i][0];
             indices[4*i+1] = meas.first[i][1];

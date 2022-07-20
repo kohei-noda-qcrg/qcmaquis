@@ -86,7 +86,7 @@ sim<Matrix, SymmGroup>::sim(DmrgParameters & parms_)
 
     dmrg_random::engine.seed(parms["seed"]);
     // check possible orbital order in existing MPS before(!) model initialization
-    if (!chkpfile.empty())
+    if (!chkpfile.empty() && !parms["IGNORE_H5"])
     {
         boost::filesystem::path p(chkpfile);
         if (boost::filesystem::exists(p) && boost::filesystem::exists(p / "props.h5"))
@@ -94,7 +94,7 @@ sim<Matrix, SymmGroup>::sim(DmrgParameters & parms_)
     }
 
     // Load MPS from checkpoint
-    if (!chkpfile.empty())
+    if (!chkpfile.empty() && !parms["IGNORE_H5"])
     {
         boost::filesystem::path p(chkpfile);
         if (boost::filesystem::exists(p) && boost::filesystem::exists(p / "mps0.h5"))

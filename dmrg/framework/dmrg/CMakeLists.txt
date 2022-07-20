@@ -45,10 +45,15 @@ get_symm_files(APPEND DMRG_MODELS_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/models/mo
 #   list(APPEND DMRG_MODELS_SOURCES "models/ll/ll_models.cpp")
 # endif(ENABLE_LL_MODELS)
 
-
 # *** Libraries
-add_library(dmrg_utils STATIC block_matrix/symmetry/su2_wrapper.cpp block_matrix/symmetry.cpp utils/utils.cpp utils/DmrgOptions.cpp utils/time_stopper.cpp utils/proc_statm.cpp utils/proc_status.cpp utils/BaseParameters.cpp utils/results_collector.cpp)
-add_library(dmrg_models STATIC ${DMRG_MODELS_SOURCES})
+#add_library(dmrg_utils STATIC block_matrix/symmetry/su2_wrapper.cpp block_matrix/symmetry.cpp utils/utils.cpp utils/DmrgOptions.cpp utils/time_stopper.cpp utils/proc_statm.cpp utils/proc_status.cpp utils/BaseParameters.cpp utils/results_collector.cpp)
+add_library(dmrg_utils SHARED block_matrix/symmetry/su2_wrapper.cpp block_matrix/symmetry.cpp utils/utils.cpp utils/DmrgOptions.cpp utils/time_stopper.cpp utils/proc_statm.cpp utils/proc_status.cpp utils/BaseParameters.cpp utils/results_collector.cpp)
+#add_library(dmrg_models STATIC ${DMRG_MODELS_SOURCES})
+target_link_libraries(dmrg_utils alps ${GSL_LIBRARIES} ${OpenMP_LIBRARIES})
+#target_link_libraries(dmrg_utils alps ${Boost_LIBRARIES})
+
+add_library(dmrg_models SHARED ${DMRG_MODELS_SOURCES})
+target_link_libraries(dmrg_models dmrg_utils alps ${GSL_LIBRARIES} ${OpenMP_LIBRARIES})
 #target_link_libraries(dmrg_models Eigen3::Eigen)
 
 set_property(TARGET dmrg_utils dmrg_models PROPERTY POSITION_INDEPENDENT_CODE TRUE)

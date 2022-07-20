@@ -54,7 +54,8 @@
                                     int ietl_jcd_maxiter,
                                     double ietl_jcd_tol, double truncation_initial,
                                     double truncation_final, double integral_cutoff,
-                                    const std::string& twosite_truncation, const std::string& orb_order);
+                                    const std::string& twosite_truncation, const std::string& orb_order,
+                                    bool ignore_h5_);
 
 
     // Initializes/updates integrals
@@ -71,6 +72,9 @@
 
     // Sets the number of sweeps
     void qcmaquis_interface_set_nsweeps(int nsweeps, int ngrowsweeps, int nmainsweeps);
+
+    // Set an arbitrary QCMaquis parameter
+    void qcmaquis_interface_set_param(const char* key, const char* value);
 
     void qcmaquis_interface_report(const std::string& reportid);
 

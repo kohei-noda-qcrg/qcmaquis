@@ -49,7 +49,8 @@ maquis::StdoutRedirector cpp_stdout_redirect;
                                     int ietl_jcd_maxiter_,
                                     double ietl_jcd_tol_, double truncation_initial_,
                                     double truncation_final_, double integral_cutoff_,
-                                    const std::string& twosite_truncation_, const std::string& orb_order_)
+                                    const std::string& twosite_truncation_, const std::string& orb_order_,
+                                    bool ignore_h5_ = false)
 
     {
 
@@ -77,6 +78,9 @@ maquis::StdoutRedirector cpp_stdout_redirect;
 
         if(entropy_)
             cpp_parms.set("MEASURE[ChemEntropy]",1);
+        
+        if(ignore_h5_)
+            cpp_parms.set("IGNORE_H5",1);
 
 
         // bond dimension
@@ -148,6 +152,12 @@ integral_indices[i][3]};
         cpp_parms.set("ngrowsweeps", ngrowsweeps_);
         cpp_parms.set("nmainsweeps", nmainsweeps_);
     }
+
+    void qcmaquis_interface_set_param(const char* key, const char* value)
+    {
+        cpp_parms.set(key, std::string(value));
+    }
+
 
     void qcmaquis_interface_report(const std::string& reportid_)
     {
