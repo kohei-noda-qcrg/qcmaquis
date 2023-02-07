@@ -30,6 +30,7 @@
 #include <boost/any.hpp>
 #include <vector>
 #include <memory>
+#include <map>
 
 class results_collector
 {
