@@ -313,10 +313,11 @@ void estimate_truncation(block_matrix<DiagMatrix, SymmGroup> const & evals,
     std::sort(allevals.begin(), allevals.end());
     std::reverse(allevals.begin(), allevals.end());
 
-    for(std::size_t k = 0; k < allevals.size(); k++){
+    /* ACTIVATE FOR PRINT OF ALL singular values */
+    /*for(std::size_t k = 0; k < allevals.size(); k++){
 
         std::cout << "S["<<k<<"] = " << allevals[k] << std::endl;
-    }
+    }*/
 
     real_type evalscut = cutoff * allevals[0];
 
