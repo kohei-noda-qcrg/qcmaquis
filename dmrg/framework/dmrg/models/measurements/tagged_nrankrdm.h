@@ -646,10 +646,13 @@ namespace measurements {
                         MPO<Matrix, SymmGroup> mpo = generate_mpo::sign_and_fill(term, identities, fillings, tag_handler_local, lattice);
                         typename MPS<Matrix, SymmGroup>::scalar_type value = operator_terms[0].second * expval(bra_mps, ket_mps_local, mpo);
 
-                        maquis::cout << "  " << value << "     " << p1+1 << " " <<  p2+1 << std::endl;
+                        if(abs(value) == 0) continue;
+
 
                         dct.push_back(value);
                         num_labels.push_back(order_labels(lattice, positions));
+
+                        maquis::cout << "  " << value << "     " << p1+1 << " " <<  p2+1 << std::endl;
                     }
                     //else {
                     //    dct.push_back(0.0);
@@ -677,7 +680,7 @@ namespace measurements {
             }
         }
 
-        void measure_2rdm(MPS<Matrix, SymmGroup> const & dummy_bra_mps,
+        void measure_2rdm_old(MPS<Matrix, SymmGroup> const & dummy_bra_mps,
                           MPS<Matrix, SymmGroup> const & ket_mps)
         {
             // Test if a separate bra state has been specified
@@ -686,7 +689,7 @@ namespace measurements {
             MPS<Matrix, SymmGroup> bra_mps = (bra_neq_ket) ? dummy_bra_mps : ket_mps;
             MPS<Matrix, SymmGroup> ket_mps_local = ket_mps;
 
-            maquis::cout << " 2-RDM: operator_terms.size() is " <<  operator_terms.size() << std::endl;
+            maquis::cout << " 2-RDM measurement:" << std::endl;
 
             #ifdef MAQUIS_OPENMP
             #pragma omp parallel for collapse(1) schedule(dynamic) firstprivate(ket_mps_local, bra_mps)
@@ -741,13 +744,16 @@ namespace measurements {
                             value += (this->cast_to_real) ? maquis::real(operator_terms[synop].second * expval(bra_mps, ket_mps_local, mpo))
                                                           : operator_terms[synop].second * expval(bra_mps, ket_mps_local, mpo);
 
-                            maquis::cout << "  " << value << "     " << p1+1 << " " <<  p2+1 << " " << p3+1 << " " <<  p4+1 << std::endl;
                         }
+
+                        if(abs(value) == 0) continue;
 
                         if(measured)
                         {
                             dct.push_back(value);
                             num_labels.push_back(order_labels(lattice, positionsORD));
+
+                            maquis::cout << "  " << value << "     " << p1+1 << " " <<  p2+1 << " " << p3+1 << " " <<  p4+1 << std::endl;
                         }
                     }
 
@@ -777,9 +783,9 @@ namespace measurements {
         {
             // Test if a separate bra state has been specified
             bool bra_neq_ket = (dummy_bra_mps.length() > 0);
-            MPS<Matrix, SymmGroup> const & bra_mps = (bra_neq_ket) ? dummy_bra_mps : ket_mps;
+            MPS<Matrix, SymmGroup> bra_mps = (bra_neq_ket) ? dummy_bra_mps : ket_mps;
             MPS<Matrix, SymmGroup> ket_mps_local = ket_mps;
-            maquis::cout << " 4-RDM: operator_terms.size() is " <<  operator_terms.size() << std::endl;
+            maquis::cout << " 4-RDM measurement:" << std::endl;
             int nonZERO=0;
 
             /* crea4 >= crea3 >= crea2 >= anni1
@@ -894,9 +900,9 @@ namespace measurements {
         {
             // Test if a separate bra state has been specified
             bool bra_neq_ket = (dummy_bra_mps.length() > 0);
-            MPS<Matrix, SymmGroup> const & bra_mps = (bra_neq_ket) ? dummy_bra_mps : ket_mps;
+            MPS<Matrix, SymmGroup> bra_mps = (bra_neq_ket) ? dummy_bra_mps : ket_mps;
             MPS<Matrix, SymmGroup> ket_mps_local = ket_mps;
-            maquis::cout << " 3-RDM: operator_terms.size() is " <<  operator_terms.size() << std::endl;
+            maquis::cout << " 3-RDM measurement:" << std::endl;
             int nonZERO=0;
 
             #ifdef MAQUIS_OPENMP
@@ -993,6 +999,107 @@ namespace measurements {
                 }
             }
             maquis::cout << "  NONzero 3 RDM elements: " << nonZERO << std::endl;
+        }
+
+        void measure_2rdm(MPS<Matrix, SymmGroup> const & dummy_bra_mps,
+                          MPS<Matrix, SymmGroup> const & ket_mps)
+        {
+            // Test if a separate bra state has been specified
+            bool bra_neq_ket = (dummy_bra_mps.length() > 0);
+            MPS<Matrix, SymmGroup> bra_mps = (bra_neq_ket) ? dummy_bra_mps : ket_mps;
+            MPS<Matrix, SymmGroup> ket_mps_local = ket_mps;
+            maquis::cout << " 2-RDM measurement:" << std::endl;
+            int nonZERO=0;
+
+            #ifdef MAQUIS_OPENMP
+            #pragma omp parallel for collapse(1) schedule(dynamic) firstprivate(ket_mps_local, bra_mps)
+            #endif
+            for (pos_t p4 =  0; p4 <  lattice.size(); ++p4)/* anni1 */
+            for (pos_t p3 = p4; p3 <  lattice.size(); ++p3)/* anni2 */
+            for (pos_t p2 =  0; p2 <  lattice.size(); ++p2)/* crea2 */
+            for (pos_t p1 = p2; p1 <  lattice.size(); ++p1)/* crea1 */
+            {
+
+                int tuple1[] = {p1, p2};
+                int tuple2[] = {p3, p4};
+
+                int pMax = *std::max_element(tuple1,tuple1+2);
+                int tMax = *std::max_element(tuple2,tuple2+2);
+                pMax = std::max(pMax,tMax);
+
+                // check tuple1 (creation ops) and tuple2 (annihilation ops)
+                bool skip = false;
+                for (auto i = 0; i < pMax; i++){
+                    auto mycount1 = std::count(std::begin(tuple1), std::end(tuple1), i);
+                    auto mycount2 = std::count(std::begin(tuple2), std::end(tuple2), i);
+                    if(mycount1 > 1 || mycount2 > 1){
+                        skip = true;
+                        break;
+                    }
+                }
+                if(skip)
+                    continue;
+                std::shared_ptr<TagHandler<Matrix, SymmGroup> > tag_handler_local(new TagHandler<Matrix, SymmGroup>(*tag_handler));
+
+                {
+
+                    std::vector<typename MPS<Matrix, SymmGroup>::scalar_type> dct;
+                    std::vector<std::vector<pos_t> > num_labels;
+
+                    std::vector<pos_t> positionsORD = {p1, p2, p3, p4};
+
+                    // Loop over operator terms that are measured synchronously and added together
+                    typename MPS<Matrix, SymmGroup>::scalar_type value = 0;
+                    bool measured = false;
+                    for (std::size_t synop = 0; synop < operator_terms.size(); ++synop) {
+
+                        tag_vec operators(4);
+                        operators[0] = operator_terms[synop].first[0][lattice.get_prop<typename SymmGroup::subcharge>("type", p1)];
+                        operators[1] = operator_terms[synop].first[1][lattice.get_prop<typename SymmGroup::subcharge>("type", p2)];
+                        operators[2] = operator_terms[synop].first[2][lattice.get_prop<typename SymmGroup::subcharge>("type", p3)];
+                        operators[3] = operator_terms[synop].first[3][lattice.get_prop<typename SymmGroup::subcharge>("type", p4)];
+
+                        term_descriptor term = generate_mpo::arrange_operators(positionsORD, operators, tag_handler_local);
+                        // check if term is allowed by symmetry
+                        if(not measurements_details::checkpg<SymmGroup>()(term, tag_handler_local, lattice))
+                            continue;
+
+                        measured = true;
+                        MPO<Matrix, SymmGroup> mpo = generate_mpo::sign_and_fill(term, identities, fillings, tag_handler_local, lattice);
+                        //value += operator_terms[synop].second * expval(bra_mps, ket_mps, mpo);
+                        value += (this->cast_to_real) ?  maquis::real(operator_terms[synop].second * expval(bra_mps, ket_mps_local, mpo)) :  operator_terms[synop].second * expval(bra_mps, ket_mps_local, mpo);
+                     }
+
+                     if(abs(value) == 0) continue;
+
+                     nonZERO+=1;
+
+                     if(measured)
+                     {
+                          dct.push_back(value);
+                          num_labels.push_back(order_labels(lattice, positionsORD));
+                     }
+                     std::vector<std::string> lbt = label_strings(num_labels);
+                     //maquis::cout << "  measuring term " << p1 << " " <<  p2 << " " << p3 << " " <<  p4 << " " <<  p5 << " " <<  p6 << " " <<  p7 << " " <<  p8 << " --> " << value << std::endl;
+                     maquis::cout << "  " << value << "     " << p1+1 << " " <<  p2+1 << " " << p3+1 << " " <<  p4+1 << std::endl;
+
+                     // save results and labels
+                     #ifdef MAQUIS_OPENMP
+                     #pragma omp critical
+                     #endif
+                     {
+                         this->vector_results.reserve(this->vector_results.size() + dct.size());
+                         std::copy(dct.rbegin(), dct.rend(), std::back_inserter(this->vector_results));
+
+                         this->labels.reserve(this->labels.size() + dct.size());
+                         std::copy(lbt.rbegin(), lbt.rend(), std::back_inserter(this->labels));
+
+                         this->labels_num.reserve(this->labels_num.size() + dct.size());
+                         std::copy(num_labels.rbegin(), num_labels.rend(), std::back_inserter(this->labels_num));
+                     }
+                }
+            }
+            maquis::cout << "  NONzero 2 RDM elements: " << nonZERO << std::endl;
         }
 
     private:
