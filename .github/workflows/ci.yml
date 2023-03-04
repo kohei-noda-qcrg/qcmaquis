@@ -1,0 +1,107 @@
+name: qcmaquis-CI
+
+on: push
+
+defaults:
+  run:
+    shell: bash
+jobs:
+  test-electronic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          # Install dependencies(gcc, gsl, hdf5, cmake, BOOST)
+          sudo apt-get install -y gcc libgsl-dev libhdf5-dev cmake libboost-all-dev
+      - name: Build
+        run: |
+          mkdir buildElectronic
+          cd buildElectronic
+          cmake -DQCMAQUIS_TESTS=ON -DBUILD_SYMMETRIES="TwoU1;TwoU1PG;SU2U1;SU2U1PG" ../dmrg
+          make
+      - name: Test
+        run: |
+          cd buildElectronic
+          ctest
+
+  test-relativistic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          # Install dependencies(gcc, gsl, hdf5, cmake, BOOST)
+          sudo apt-get install -y gcc libgsl-dev libhdf5-dev cmake libboost-all-dev
+      - name: Build
+        run: |
+          mkdir buildRelativistic
+          cd buildRelativistic
+          cmake -DQCMAQUIS_TESTS=ON -DBUILD_SYMMETRIES="TwoU1;TwoU1PG;SU2U1;SU2U1PG;U1DG" ../dmrg
+          make
+      - name: Test
+        run: |
+          cd buildRelativistic
+          ctest
+
+  test-nu1:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          # Install dependencies(gcc, gsl, hdf5, cmake, BOOST)
+          sudo apt-get install -y gcc libgsl-dev libhdf5-dev cmake libboost-all-dev
+      - name: Build
+        run: |
+          mkdir buildNU1
+          cd buildNU1
+          cmake -DQCMAQUIS_TESTS=ON -DBUILD_SYMMETRIES="TwoU1;TwoU1PG;SU2U1;SU2U1PG;U1DG;NU1" -DBUILD_PREBO=ON -DDMRG_NUMSYMM=5  ../dmrg
+          make
+      - name: Test
+        run: |
+          cd buildNU1
+          ctest
+
+  test-TD-conventional:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          # Install dependencies(gcc, gsl, hdf5, cmake, BOOST)
+          sudo apt-get install -y gcc libgsl-dev libhdf5-dev cmake libboost-all-dev
+      - name: Build
+        run: |
+          mkdir buildTDConventional
+          cd buildTDConventional
+          cmake -DQCMAQUIS_TESTS=ON -DBUILD_SYMMETRIES="TwoU1;TwoU1PG;SU2U1;SU2U1PG" -DBUILD_DMRG_EVOLVE=ON ../dmrg
+          make
+      - name: Test
+        run: |
+          cd buildTDConventional
+          ctest
+
+  test-TD-with-all-symmetries:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          # Install dependencies(gcc, gsl, hdf5, cmake, BOOST)
+          sudo apt-get install -y gcc libgsl-dev libhdf5-dev cmake libboost-all-dev
+      - name: Build
+        run: |
+          mkdir buildTDAllSymmetries
+          cd buildTDAllSymmetries
+          cmake -DQCMAQUIS_TESTS=ON -DBUILD_SYMMETRIES="TwoU1;TwoU1PG;SU2U1;SU2U1PG;U1DG;NU1" -DBUILD_DMRG_EVOLVE=ON -DBUILD_PREBO=ON ../dmrg
+          make
+      - name: Test
+        run: |
+          cd buildTDAllSymmetries
+          ctest
