@@ -652,7 +652,7 @@ namespace measurements {
                         dct.push_back(value);
                         num_labels.push_back(order_labels(lattice, positions));
 
-                        maquis::cout << "  " << value << "     " << p1+1 << " " <<  p2+1 << std::endl;
+                        maquis::cout << "  " << p1+1 << " " <<  p2+1 << "     " << value << std::endl;
                     }
                     //else {
                     //    dct.push_back(0.0);
@@ -753,7 +753,7 @@ namespace measurements {
                             dct.push_back(value);
                             num_labels.push_back(order_labels(lattice, positionsORD));
 
-                            maquis::cout << "  " << value << "     " << p1+1 << " " <<  p2+1 << " " << p3+1 << " " <<  p4+1 << std::endl;
+                            maquis::cout << "  " << p1+1 << " " <<  p2+1 << " " << p3+1 << " " <<  p4+1 << "     " << value << std::endl;
                         }
                     }
 
@@ -874,7 +874,7 @@ namespace measurements {
                      }
                      std::vector<std::string> lbt = label_strings(num_labels);
                      //std::cout << "  measuring term " << p1 << " " <<  p2 << " " << p3 << " " <<  p4 << " " <<  p5 << " " <<  p6 << " " <<  p7 << " " <<  p8 << " --> " << value << std::endl;
-                     maquis::cout << "  " << value << "     " << p1+1 << " " <<  p2+1 << " " << p3+1 << " " <<  p4+1 << " " <<  p5+1 << " " << p6+1 << " " <<  p7+1 << " " <<  p8+1  << std::endl;
+                     maquis::cout << "  " << p1+1 << " " <<  p2+1 << " " << p3+1 << " " <<  p4+1 << " " <<  p5+1 << " " << p6+1 << " " <<  p7+1 << " " <<  p8+1 << "     " << value << std::endl;
 
                      // save results and labels
                      #ifdef MAQUIS_OPENMP
@@ -980,7 +980,7 @@ namespace measurements {
                      }
                      std::vector<std::string> lbt = label_strings(num_labels);
                      //maquis::cout << "  measuring term " << p1 << " " <<  p2 << " " << p3 << " " <<  p4 << " " <<  p5 << " " <<  p6 << " " <<  p7 << " " <<  p8 << " --> " << value << std::endl;
-                     maquis::cout << "  " << value << "     " << p1+1 << " " <<  p2+1 << " " << p3+1 << " " <<  p4+1 << " " <<  p5+1 << " " << p6+1 << std::endl;
+                     maquis::cout << "  " << p1+1 << " " <<  p2+1 << " " << p3+1 << " " <<  p4+1 << " " <<  p5+1 << " " << p6+1 << "     " << value << std::endl;
 
                      // save results and labels
                      #ifdef MAQUIS_OPENMP
@@ -1081,7 +1081,7 @@ namespace measurements {
                      }
                      std::vector<std::string> lbt = label_strings(num_labels);
                      //maquis::cout << "  measuring term " << p1 << " " <<  p2 << " " << p3 << " " <<  p4 << " " <<  p5 << " " <<  p6 << " " <<  p7 << " " <<  p8 << " --> " << value << std::endl;
-                     maquis::cout << "  " << value << "     " << p1+1 << " " <<  p2+1 << " " << p3+1 << " " <<  p4+1 << std::endl;
+                     maquis::cout << "  " << p1+1 << " " <<  p2+1 << " " << p3+1 << " " <<  p4+1 << "     " << value << std::endl;
 
                      // save results and labels
                      #ifdef MAQUIS_OPENMP
